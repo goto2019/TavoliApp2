@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?><ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:TavoliApp.ViewModels"
+             xmlns:models="clr-namespace:TavoliApp.Models"
+             x:Class="TavoliApp.Views.TavoloPage"
+             x:DataType="viewmodels:TavoloPageViewModel"
+             NavigationPage.HasNavigationBar="False">
+
+    <ContentPage.Content>
+        <Grid RowDefinitions="*,Auto,Auto" Padding="10">
+
+            <!-- ARTICOLI ORDINATI -->
+            <CollectionView x:Name="ArticoliCollection"
+                            ItemsSource="{Binding ArticoliOrdinati}"
+                            SelectionMode="None"
+                            Grid.Row="0"
+                            HeightRequest="300"
+                            VerticalScrollBarVisibility="Always">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Articolo">
+                        <Grid Padding="5" ColumnDefinitions="Auto,*,Auto,Auto" VerticalOptions="Center">
+                            <Label Text="{Binding Denominazione}" Grid.Column="0" VerticalOptions="Center" />
+                            <Label Text="{Binding PrezzoUnitario}" Grid.Column="1" VerticalOptions="Center" HorizontalTextAlignment="End" />
+                            <Button Text="+" Grid.Column="2" Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:TavoloPageViewModel}}, Path=AggiungiArticoloCommand}" CommandParameter="{Binding .}" />
+                            <Button Text="X" Grid.Column="3" Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:TavoloPageViewModel}}, Path=RimuoviArticoloCommand}" CommandParameter="{Binding .}" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- SPACING -->
+            <BoxView HeightRequest="1" Grid.Row="1" />
+
+            <!-- BOTTONI AZIONE -->
+            <StackLayout Orientation="Horizontal" Grid.Row="2" HorizontalOptions="Center" Spacing="10">
+                <Button Text="Aggiungi Manuale" Command="{Binding AggiungiArticoloManualeCommand}" />
+                <Button Text="Note Articolo" Command="{Binding AggiungiNotaArticoloCommand}" />
+                <Button Text="Chiudi Tavolo" Command="{Binding ChiudiTavoloCommand}" />
+            </StackLayout>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>
