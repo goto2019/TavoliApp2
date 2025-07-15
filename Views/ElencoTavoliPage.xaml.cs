@@ -1,6 +1,7 @@
 using Microsoft.Maui.Controls;
 using System;
 using System.Net.Http;
+using TavoliApp.Models;
 using TavoliApp.ViewModels;
 
 namespace TavoliApp.Views
@@ -9,30 +10,21 @@ namespace TavoliApp.Views
     {
         private readonly ElencoTavoliViewModel _viewModel;
 
-        public ElencoTavoliPage(HttpClient httpClient, string nomeOperatore, IServiceProvider serviceProvider)
+        public ElencoTavoliPage(HttpClient httpClient, string operatore, IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            _viewModel = new ElencoTavoliViewModel(httpClient, nomeOperatore, serviceProvider);
+            _viewModel = new ElencoTavoliViewModel(httpClient, operatore, serviceProvider);
             BindingContext = _viewModel;
-        }
-
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
-            await _viewModel.CaricaTavoli();
-        }
-
-        private void OnLogoutClicked(object sender, EventArgs e)
-        {
-            _viewModel.LogoutCommand.Execute(null);
         }
 
         private void CollectionView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.CurrentSelection.Count > 0 && e.CurrentSelection[0] is Models.TavoloDto tavolo)
+            if (e.CurrentSelection.Count > 0)
             {
-                _viewModel.GestisciSelezioneTavolo(tavolo);
+                var tavoloSelezionato = e.CurrentSelection[0] as TavoloDto;
+                _viewModel?.GestisciSelezioneTavolo(tavoloSelezionato);
             }
         }
     }
 }
+

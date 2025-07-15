@@ -1,20 +1,18 @@
-
-using Microsoft.Maui.Controls;
 using Microsoft.Maui;
+using Microsoft.Maui.Controls;
 using System;
+using TavoliApp.AppViews;
 
 namespace TavoliApp
 {
     public partial class App : Application
     {
-        public static IServiceProvider Services { get; private set; }
-
         public App(IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            Services = serviceProvider;
 
-            MainPage = new NavigationPage(new AppViews.LoginPage(serviceProvider));
+            // Imposta la pagina iniziale passando il serviceProvider al LoginPage
+            MainPage = new LoginPage(serviceProvider);
         }
     }
 }

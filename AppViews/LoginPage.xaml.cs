@@ -1,7 +1,6 @@
 using Microsoft.Maui.Controls;
-using TavoliApp.ViewModels;
 using System;
-using Microsoft.Maui.Storage;
+using TavoliApp.ViewModels;
 
 namespace TavoliApp.AppViews
 {
@@ -13,13 +12,18 @@ namespace TavoliApp.AppViews
         {
             InitializeComponent();
             _serviceProvider = serviceProvider;
+            BindingContext = new LoginViewModel(_serviceProvider);
+        }
 
-            var viewModel = new LoginViewModel(_serviceProvider);
-
-            if (Preferences.ContainsKey("UltimoIp"))
-                viewModel.Ip = Preferences.Get("UltimoIp", "");
-
-            BindingContext = viewModel;
+        private void ChiudiApp_Clicked(object sender, EventArgs e)
+        {
+#if ANDROID
+            Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
+#elif IOS
+            System.Diagnostics.Process.GetCurrentProcess().CloseMainWindow();
+#else
+            Application.Current.Quit();
+#endif
         }
     }
 }

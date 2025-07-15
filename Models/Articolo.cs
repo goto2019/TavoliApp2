@@ -1,4 +1,4 @@
-
+using System;
 namespace TavoliApp.Models
 {
     public class Articolo
@@ -21,5 +21,6 @@ namespace TavoliApp.Models
         public string Sconto { get; set; }
         public string TipoDiSconto { get; set; }
         public string GiornoEOra { get; set; }
+        public string Nota { get; set; }
     }
 }

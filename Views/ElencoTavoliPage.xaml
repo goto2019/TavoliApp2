@@ -1,35 +1,64 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage
-    x:Class="TavoliApp.Views.ElencoTavoliPage"
-    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:viewmodels="clr-namespace:TavoliApp.ViewModels"
-    xmlns:models="clr-namespace:TavoliApp.Models"
-    x:DataType="viewmodels:ElencoTavoliViewModel"
-    Title="Elenco Tavoli">
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:TavoliApp.ViewModels"
+             xmlns:models="clr-namespace:TavoliApp.Models"
+             xmlns:converters="clr-namespace:TavoliApp.Converters"
+             x:Class="TavoliApp.Views.ElencoTavoliPage"
+             x:DataType="viewmodels:ElencoTavoliViewModel"
+             Title="Tavoli">
 
-    <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Logout" Clicked="OnLogoutClicked" />
-    </ContentPage.ToolbarItems>
+    <ContentPage.Resources>
+        <converters:TotaleToColorConverter x:Key="TotaleToColorConverter" />
+        <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
+    </ContentPage.Resources>
 
     <ContentPage.Content>
         <Grid Padding="10">
-            <CollectionView x:Name="TavoliCollection"
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Label Grid.Row="0"
+                   Text="Tavoli"
+                   FontSize="24"
+                   HorizontalOptions="Center" />
+
+            <CollectionView Grid.Row="1"
                             ItemsSource="{Binding Tavoli}"
                             SelectionMode="Single"
                             SelectionChanged="CollectionView_SelectionChanged">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="4"/>
+                </CollectionView.ItemsLayout>
+
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:TavoloDto">
-                        <Frame BorderColor="Gray" CornerRadius="10" Padding="10" Margin="5">
-                            <VerticalStackLayout>
-                                <Label Text="Tavolo: {Binding NumeroTavolo}" FontAttributes="Bold" FontSize="16" />
-                                <Label Text="Stato: {Binding Stato}" />
-                                <Label Text="Totale: € {Binding Totale}" />
+                        <Frame Padding="10"
+                               Margin="5"
+                               CornerRadius="10"
+                               HasShadow="True"
+                               BackgroundColor="{Binding ., Converter={StaticResource TotaleToColorConverter}}">
+                            <VerticalStackLayout HorizontalOptions="Center">
+                                <Label Text="{Binding NumeroTavolo}" FontSize="20" HorizontalOptions="Center"/>
+                                <Label Text="{Binding TotaleStringa, StringFormat='€ {0}'}"
+                                       FontSize="16"
+                                       HorizontalOptions="Center"
+                                       IsVisible="{Binding TotaleStringaRaw, Converter={StaticResource StringNotEmptyConverter}}"/>
                             </VerticalStackLayout>
                         </Frame>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+
+            <Button Grid.Row="2"
+                    Text="Logout"
+                    Command="{Binding LogoutCommand}"
+                    HorizontalOptions="Center"
+                    Margin="0,10,0,0"/>
         </Grid>
     </ContentPage.Content>
 </ContentPage>
+

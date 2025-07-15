@@ -1,106 +1,31 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using System.Net.Http;
 using System.Windows.Input;
 using TavoliApp.Models;
+using Microsoft.Maui.Controls;
 
 namespace TavoliApp.ViewModels
 {
-    public class TavoloPageViewModel : INotifyPropertyChanged
+    public class TavoloPageViewModel : BindableObject
     {
-        public event PropertyChangedEventHandler PropertyChanged;
+        public TavoloDto Tavolo { get; }
+        public string TitoloPagina => $"Tavolo {Tavolo?.NumeroTavolo}";
+        public ICommand IndietroCommand { get; }
 
-        private TavoloDto _tavolo;
-        public TavoloDto Tavolo
-        {
-            get => _tavolo;
-            set
-            {
-                _tavolo = value;
-                OnPropertyChanged();
-            }
-        }
+        private readonly HttpClient _httpClient;
+        private readonly string _operatore;
+        private readonly IServiceProvider _serviceProvider;
 
-        public ObservableCollection<Articolo> ArticoliOrdinati { get; set; } = new();
-
-        public ICommand AggiungiArticoloCommand { get; }
-        public ICommand RimuoviArticoloCommand { get; }
-        public ICommand AggiungiArticoloManualeCommand { get; }
-        public ICommand AggiungiNotaArticoloCommand { get; }
-        public ICommand ChiudiTavoloCommand { get; }
-
-        public event EventHandler ScrolledToLastItemRequested;
-
-        public TavoloPageViewModel(TavoloDto tavolo)
+        public TavoloPageViewModel(TavoloDto tavolo, HttpClient httpClient, string operatore, IServiceProvider serviceProvider)
         {
             Tavolo = tavolo;
-            ArticoliOrdinati = new ObservableCollection<Articolo>(tavolo.Articolis ?? new List<Articolo>());
+            _httpClient = httpClient;
+            _operatore = operatore;
+            _serviceProvider = serviceProvider;
 
-            AggiungiArticoloCommand = new Command<Articolo>(AggiungiArticolo);
-            RimuoviArticoloCommand = new Command<Articolo>(RimuoviArticolo);
-            AggiungiArticoloManualeCommand = new Command(AggiungiArticoloManuale);
-            AggiungiNotaArticoloCommand = new Command(AggiungiNotaArticolo);
-            ChiudiTavoloCommand = new Command(ChiudiTavolo);
-        }
-
-        public void OnAppearing()
-        {
-            ScrolledToLastItemRequested?.Invoke(this, EventArgs.Empty);
-        }
-
-        private void AggiungiArticolo(Articolo articolo)
-        {
-            if (articolo != null)
+            IndietroCommand = new Command(async () =>
             {
-                ArticoliOrdinati.Add(articolo);
-                ScrolledToLastItemRequested?.Invoke(this, EventArgs.Empty);
-            }
+                await Application.Current.MainPage.Navigation.PopAsync();
+            });
         }
-
-        private void RimuoviArticolo(Articolo articolo)
-        {
-            if (articolo != null && ArticoliOrdinati.Contains(articolo))
-            {
-                ArticoliOrdinati.Remove(articolo);
-            }
-        }
-
-        protected void OnPropertyChanged([CallerMemberName] string name = "")
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-    
-
-        private void AggiungiArticoloManuale()
-        {
-            // Esempio: aggiunge un articolo fittizio
-            var nuovo = new Articolo
-            {
-                Codice = "MANUALE",
-                Denominazione = "Articolo Inserito Manualmente",
-                PrezzoUnitario = 0.0m
-            };
-            ArticoliOrdinati.Add(nuovo);
-            ScrolledToLastItemRequested?.Invoke(this, EventArgs.Empty);
-        }
-
-    
-
-        private void AggiungiNotaArticolo()
-        {
-            if (ArticoliOrdinati.Any())
-            {
-                ArticoliOrdinati[^1].Denominazione += " (nota)";
-                ScrolledToLastItemRequested?.Invoke(this, EventArgs.Empty);
-            }
-        }
-
-    
-
-        private void ChiudiTavolo()
-        {
-            // Logica semplificata per chiusura tavolo
-            ArticoliOrdinati.Clear();
-        }
-
     }
 }

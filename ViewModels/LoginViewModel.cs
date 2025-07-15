@@ -1,91 +1,77 @@
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Storage;
 using System;
-using System.ComponentModel;
 using System.Net.Http;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Microsoft.Maui.Storage;
 using TavoliApp.AppViews;
 using TavoliApp.Views;
 
 namespace TavoliApp.ViewModels
 {
-    public class LoginViewModel : INotifyPropertyChanged
+    public class LoginViewModel
     {
         private readonly IServiceProvider _serviceProvider;
 
-        private string _ip;
-        private string _password;
-        private string _messaggio;
+        public string Ip { get; set; }
 
-        public string Ip
-        {
-            get => _ip;
-            set { _ip = value; OnPropertyChanged(); }
-        }
-
-        public string Password
-        {
-            get => _password;
-            set { _password = value; OnPropertyChanged(); }
-        }
-
-        public string Messaggio
-        {
-            get => _messaggio;
-            set { _messaggio = value; OnPropertyChanged(); }
-        }
+        public string Password { get; set; } = "1234";
 
         public ICommand LoginCommand { get; }
+        public ICommand ClearIpCommand { get; }
 
         public LoginViewModel(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-            LoginCommand = new Command(async () => await EseguiLoginAsync());
+
+            LoginCommand = new Command(async () => await EseguiLogin());
+            ClearIpCommand = new Command(CancellaIp);
+
+            // Ripristina l’ultimo IP usato
+            Ip = Preferences.Get("UltimoIp", string.Empty);
         }
 
-        private async Task EseguiLoginAsync()
+        private async Task EseguiLogin()
         {
-            Messaggio = "";
-
-            if (string.IsNullOrWhiteSpace(Ip) || string.IsNullOrWhiteSpace(Password))
-            {
-                Messaggio = "Inserisci IP e Password.";
-                return;
-            }
-
-            if (Password != "1234")
-            {
-                Messaggio = "Password errata.";
-                return;
-            }
-
             try
             {
-                // Salva l'IP corrente
+                if (string.IsNullOrWhiteSpace(Ip))
+                {
+                    await Application.Current.MainPage.DisplayAlert("Errore", "Inserisci l'indirizzo IP", "OK");
+                    return;
+                }
+
+                if (Password != "1234")
+                {
+                    await Application.Current.MainPage.DisplayAlert("Errore", "Password errata", "OK");
+                    return;
+                }
+
+                var baseUrl = $"http://{Ip}:50000/";
+                var httpClient = new HttpClient
+                {
+                    BaseAddress = new Uri(baseUrl),
+                    Timeout = TimeSpan.FromSeconds(10)
+                };
+
+                // Salva l’IP usato
                 Preferences.Set("UltimoIp", Ip);
 
-                var http = new HttpClient { BaseAddress = new Uri($"http://{Ip}:50000") };
-
-                string nomeOperatore = "OPERATORE"; // oppure recupera dinamicamente
-
-                // Passa IP, nome operatore e serviceProvider
-                var elencoTavoliPage = new ElencoTavoliPage(http, nomeOperatore, _serviceProvider);
-
-                App.Current.MainPage = new NavigationPage(elencoTavoliPage);
+                // Vai alla schermata ElencoTavoli
+                Application.Current.MainPage = new NavigationPage(
+                    new ElencoTavoliPage(httpClient, "Operatore", _serviceProvider));
             }
             catch (Exception ex)
             {
-                Messaggio = "Errore di connessione.";
-#if DEBUG
-                System.Diagnostics.Debug.WriteLine(ex);
-#endif
+                await Application.Current.MainPage.DisplayAlert("Errore imprevisto", $"Impossibile collegarsi al server.\n{ex.Message}", "OK");
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        void OnPropertyChanged([CallerMemberName] string name = "") =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        private void CancellaIp()
+        {
+            Preferences.Remove("UltimoIp");
+            Ip = string.Empty;
+            Application.Current.MainPage.DisplayAlert("Reset", "IP cancellato", "OK");
+        }
     }
 }

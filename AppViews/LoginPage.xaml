@@ -1,21 +1,45 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:viewmodels="clr-namespace:TavoliApp.ViewModels"
              x:Class="TavoliApp.AppViews.LoginPage"
-             x:DataType="viewmodels:LoginViewModel"
-             BackgroundColor="White"
              Title="Login"
-             NavigationPage.HasNavigationBar="False">
+             BackgroundColor="White">
 
-    <VerticalStackLayout Padding="30" Spacing="15" VerticalOptions="Center">
-        <Label Text="LOGIN" FontSize="32" FontAttributes="Bold" HorizontalOptions="Center" />
+    <VerticalStackLayout Padding="30" Spacing="20">
 
-        <Entry Text="{Binding Ip}" Placeholder="Inserisci IP" Keyboard="Url" />
-        <Entry Text="{Binding Password}" Placeholder="Password" IsPassword="True" />
+        <Label Text="Inserisci l'IP del server"
+               FontSize="20"
+               HorizontalOptions="Center" />
 
-        <Label Text="{Binding Messaggio}" TextColor="Red" FontAttributes="Italic" />
+        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto">
+            <Entry x:Name="IpEntry"
+                   Text="{Binding Ip}"
+                   Placeholder="es. 192.168.1.100"
+                   FontSize="18"
+                   Keyboard="Text"
+                   Grid.Column="0" />
 
-        <Button Text="ACCEDI" Command="{Binding LoginCommand}" />
+            <Button Text="❌"
+                    FontSize="18"
+                    Padding="5"
+                    Command="{Binding ClearIpCommand}"
+                    Grid.Column="1" />
+        </Grid>
+
+        <Entry Text="{Binding Password}"
+               IsPassword="True"
+               Placeholder="Password"
+               FontSize="18" />
+
+        <Button Text="Login"
+                FontSize="18"
+                Command="{Binding LoginCommand}" />
+
+        <Button Text="Chiudi App"
+                FontSize="18"
+                BackgroundColor="DarkRed"
+                TextColor="White"
+                Clicked="ChiudiApp_Clicked" />
+
     </VerticalStackLayout>
 </ContentPage>

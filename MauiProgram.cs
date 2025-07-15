@@ -4,7 +4,7 @@ using Microsoft.Maui.Hosting;
 using TavoliApp.AppViews;
 using TavoliApp.ViewModels;
 using TavoliApp.Views; // <- NECESSARIO
-using TavoliApp.WSTavoliClient;
+using TavoliApp.ApiClients;
 
 namespace TavoliApp
 {
